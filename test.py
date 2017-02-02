@@ -10,13 +10,61 @@ warnings.warn = warn
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import itertools as itl
 from matplotlib.colors import ListedColormap
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import precision_recall_fscore_support
 
-def feature_select(feature, decision):
+def feature_select(feature, decision, search_type = "forward_search"):
+
+    def unique_rows(a):
+        a = np.ascontiguousarray(a)
+        unique_a = np.unique(a.view([('', a.dtype)]*a.shape[1]))
+        return unique_a.view(a.dtype).reshape((unique_a.shape[0], a.shape[1]))
+
+    def fitness(chosen, decision):
+        uniques = unique_rows(chosen)        
+        count = 0
+        for eqclass in uniques:
+            instances = uniques.find(eqclass)
+            # todo: reduce to flagged instances, not all of them 
+            deci = None
+            classifiable = True 
+            for i in instances:
+                if deci == None:
+                    deci = decision[i] # todo: fix this i index
+                else if deci != decision[i]:
+                    classifiable = False
+                    break 
+            if classifiable == True:
+                count = count + instances.size # todo: fix this instance and size thingy
+
+        return count / decision.size
+        
+    if search_type == "forward_search":
+        candidates = np.arange(feature.shape[1])
+        solution = np.zeros(0)
+        best_fitness = 0
+        while candidates.size != 0:
+            # select next fittest feature to add
+            nextf = -1
+            for j in range(len(candidates)):
+                if dependency_degree(solution, candidates[j]) > best_fitness:            
+                    nextf = j
+                    break
+
+            # remove i-th feature from pool 
+            x = candidates[nextf]
+            solution = np.append(solution, x)  
+            candidates = np.delete(candidates, [i])
+
+            # break if reduct set found
+
+    else if search_type == "backward_search":
+
+
     return feature
 
 dsets_path = "./datasets/"
@@ -30,7 +78,8 @@ for i, f in enumerate(os.listdir(dsets_path)):
         y = ds[:, -1].reshape(-1, 1)
 
         # do feature selection
-        X = feature_select(X, y)   
+        if i == 1:
+            X = feature_select(X, y)   
 
         metrics = []
         rep = 10
