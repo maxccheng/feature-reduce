@@ -7,6 +7,7 @@ def warn(*args, **kwargs):
 import warnings
 warnings.warn = warn
 
+import pudb 
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,53 +20,57 @@ from sklearn.metrics import precision_recall_fscore_support
 
 def feature_select(feature, decision, search_type = "forward_search"):
 
+    # Utility function
     def unique_rows(a):
-        a = np.ascontiguousarray(a)
-        unique_a = np.unique(a.view([('', a.dtype)]*a.shape[1]))
-        return unique_a.view(a.dtype).reshape((unique_a.shape[0], a.shape[1]))
+        if a.size:
+            a = np.ascontiguousarray(a)
+            unique_a = np.unique(a.view([('', a.dtype)]*a.shape[1]))
+            return unique_a.view(a.dtype).reshape((unique_a.shape[0], a.shape[1]))
+        else:
+            return np.zeros(0)
 
-    def fitness(chosen, decision):
-        uniques = unique_rows(chosen)        
+    # Calculate degree of dependency
+    # By summing all element counts of each equivalent class
+    #   that can be classified without ambiguity
+    def degree_dependency(chosen, decision):
+        uniques = unique_rows(chosen)                                   # select one instance out of each equivalent class 
         count = 0
         for eqclass in uniques:
-            instances = uniques.find(eqclass)
-            # todo: reduce to flagged instances, not all of them 
+            matched_idx = np.where((chosen == (eqclass)).all(axis = 1)) # get index list of i-th equivalent class
             deci = None
             classifiable = True 
-            for i in instances:
-                if deci == None:
-                    deci = decision[i] # todo: fix this i index
-                else if deci != decision[i]:
+            for i in matched_idx[0]:
+                if deci is None:
+                    deci = decision[i] 
+                elif deci != decision[i]:
                     classifiable = False
                     break 
             if classifiable == True:
-                count = count + instances.size # todo: fix this instance and size thingy
+                count = count + matched_idx[0].size 
 
-        return count / decision.size
+        return float(count) / decision.size
         
     if search_type == "forward_search":
         candidates = np.arange(feature.shape[1])
-        solution = np.zeros(0)
-        best_fitness = 0
-        while candidates.size != 0:
+        solution = np.empty([feature.shape[0], 0])
+        best_fitness = 0.0
+        while best_fitness != 1.0:
             # select next fittest feature to add
             nextf = -1
-            for j in range(len(candidates)):
-                if dependency_degree(solution, candidates[j]) > best_fitness:            
+            for j in xrange(len(candidates)):
+                #print j, best_fitness
+                f = degree_dependency(np.append(solution, feature[:,[j]], 1), decision) 
+                if f > best_fitness:            
+                    best_fitness = f
                     nextf = j
                     break
 
             # remove i-th feature from pool 
-            x = candidates[nextf]
-            solution = np.append(solution, x)  
-            candidates = np.delete(candidates, [i])
+            solution = np.append(solution, feature[:,[nextf]], 1)  
+            feature = np.delete(feature, nextf, 1)
+            candidates = np.delete(candidates, nextf, 0)
 
-            # break if reduct set found
-
-    else if search_type == "backward_search":
-
-
-    return feature
+    return solution
 
 dsets_path = "./datasets/"
 dset_ext = ".dat"
@@ -78,12 +83,12 @@ for i, f in enumerate(os.listdir(dsets_path)):
         y = ds[:, -1].reshape(-1, 1)
 
         # do feature selection
-        if i == 1:
-            X = feature_select(X, y)   
+        X_all_count = X.shape[1]
+        #X = feature_select(X, y)   
 
         metrics = []
         rep = 10
-        for j in range(rep):
+        for j in xrange(rep):
             # hold out split with ratio 80 training : 20 test, repeated randomly for 10 times
             X_train, X_test, y_train, y_test = \
                 train_test_split(X, y, test_size=0.20) 
@@ -104,5 +109,5 @@ for i, f in enumerate(os.listdir(dsets_path)):
         metrics_avg = np.mean(metrics, axis=0) 
 
         # print average scores
-        print "%02d %-15s dim_selected=%02d train_instances=%5s/%5s precision=%.2f recall=%.2f fscore=%.2f" % (i, f, X.shape[1], X_train.shape[0], X.shape[0], metrics_avg[0], metrics_avg[1], metrics_avg[2])
+        print "%02d %-15s dim_selected=%02d/%02d train_instances=%5s/%5s precision=%.2f recall=%.2f fscore=%.2f" % (i, f, X.shape[1], X_all_count, X_train.shape[0], X.shape[0], metrics_avg[0], metrics_avg[1], metrics_avg[2])
 
