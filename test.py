@@ -9,6 +9,7 @@ warnings.warn = warn
 
 import pudb 
 import os
+import random as rnd
 import numpy as np
 import matplotlib.pyplot as plt
 import itertools as itl
@@ -18,7 +19,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import precision_recall_fscore_support
 
-def feature_select(feature, decision, search_type = "forward_search"):
+def greedy_hill_climb(feature, decision, search_type = "forward_search"):
 
     # Utility function
     def unique_rows(a):
@@ -58,18 +59,73 @@ def feature_select(feature, decision, search_type = "forward_search"):
             # select next fittest feature to add
             nextf = -1
             for j in xrange(len(candidates)):
-                #print j, best_fitness
                 f = degree_dependency(np.append(solution, feature[:,[j]], 1), decision) 
                 if f > best_fitness:            
                     best_fitness = f
                     nextf = j
-                    break
+
+            # remove i-th feature from pool 
+            solution = np.append(solution, feature[:,[nextf]], 1)  
+            #print solution
+            feature = np.delete(feature, nextf, 1)
+            candidates = np.delete(candidates, nextf, 0)
+        
+    return solution
+
+def beta_hill_climb(feature, decision, search_type = "forward_search", mutate_chance = 0.5):
+
+    # Utility function
+    def unique_rows(a):
+        if a.size:
+            a = np.ascontiguousarray(a)
+            unique_a = np.unique(a.view([('', a.dtype)]*a.shape[1]))
+            return unique_a.view(a.dtype).reshape((unique_a.shape[0], a.shape[1]))
+        else:
+            return np.zeros(0)
+
+    # Calculate degree of dependency
+    # By summing all element counts of each equivalent class
+    #   that can be classified without ambiguity
+    def degree_dependency(chosen, decision):
+        uniques = unique_rows(chosen)                                   # select one instance out of each equivalent class 
+        count = 0
+        for eqclass in uniques:
+            matched_idx = np.where((chosen == (eqclass)).all(axis = 1)) # get index list of i-th equivalent class
+            deci = None
+            classifiable = True 
+            for i in matched_idx[0]:
+                if deci is None:
+                    deci = decision[i] 
+                elif deci != decision[i]:
+                    classifiable = False
+                    break 
+            if classifiable == True:
+                count = count + matched_idx[0].size 
+
+        return float(count) / decision.size
+        
+    if search_type == "forward_search":
+        candidates = np.arange(feature.shape[1])
+        solution = np.empty([feature.shape[0], 0])
+        best_fitness = 0.0
+        while best_fitness != 1.0:
+            # select next fittest feature to add
+            nextf = -1
+            for j in xrange(len(candidates)):
+                f = degree_dependency(np.append(solution, feature[:,[j]], 1), decision) 
+                if f > best_fitness:            
+                    nextf = j
+                    best_fitness = f
+
+            if rnd.random() > 0.05:
+                nextf = rnd.randint(0, len(candidates)-1)
+                best_fitness = degree_dependency(np.append(solution, feature[:,[nextf]], 1), decision) 
 
             # remove i-th feature from pool 
             solution = np.append(solution, feature[:,[nextf]], 1)  
             feature = np.delete(feature, nextf, 1)
             candidates = np.delete(candidates, nextf, 0)
-
+        
     return solution
 
 dsets_path = "./datasets/"
@@ -84,7 +140,8 @@ for i, f in enumerate(os.listdir(dsets_path)):
 
         # do feature selection
         X_all_count = X.shape[1]
-        #X = feature_select(X, y)   
+        X = beta_hill_climb(X, y)   
+        #np.set_printoptions(threshold=100000)
 
         metrics = []
         rep = 10
