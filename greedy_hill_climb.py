@@ -54,25 +54,24 @@ def greedy_hill_climb(feature, decision, search_type = "forward_search"):
         return float(count) / decision.size
         
     if search_type == "forward_search":
-        candidates = np.arange(feature.shape[1])
-        solution = np.empty([feature.shape[0], 0])
-        best_fitness = 0.0
-        while best_fitness != 1.0:
-            # select next fittest feature to add
-            nextf = -1
-            for j in xrange(len(candidates)):
-                f = degree_dependency(np.append(solution, feature[:,[j]], 1), decision) 
-                if f > best_fitness:            
-                    best_fitness = f
-                    nextf = j
+        solution = np.zeros(feature.shape[1], dtype=bool)
+        fitn_best = 0.0
+        while fitn_best < 1.0:
+            feat_best = -1  # select next fittest feature
 
-            # remove i-th feature from pool 
-            solution = np.append(solution, feature[:,[nextf]], 1)  
-            #print solution
-            feature = np.delete(feature, nextf, 1)
-            candidates = np.delete(candidates, nextf, 0)
+            for j in np.where(solution == False)[0]:
+                solution_tmp = np.copy(solution)
+                solution_tmp[j] = True 
+                fitn_tmp = degree_dependency(feature[:,solution_tmp], decision) 
+                if fitn_tmp > fitn_best:            
+                    fitn_best = fitn_tmp
+                    feat_best = j 
         
-    return solution
+            if feat_best < 0:
+                feat_best = np.where(solution == False)[0][0]
+            solution[feat_best] = True  # add the fittest feature
+
+    return feature[:,solution]
 
 dsets_path = "./datasets/"
 dset_ext = ".dat"
