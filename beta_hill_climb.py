@@ -21,7 +21,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import precision_recall_fscore_support
 
-def beta_hill_climb(feature, decision, search_type = "forward_search", mutate_chance = 0.5):
+def beta_hill_climb(feature, decision, search_type = "forward_search", mutate_chance = 0.1):
 
     # Utility function
     def unique_rows(a):
@@ -50,10 +50,10 @@ def beta_hill_climb(feature, decision, search_type = "forward_search", mutate_ch
                     break 
             if classifiable == True:
                 count = count + matched_idx[0].size 
-
         return float(count) / decision.size
        
     if search_type == "forward_search":
+        eval_count = 0
         solution = np.zeros(feature.shape[1], dtype=bool)
         fitn_best = 0.0
         while fitn_best < 1.0:
@@ -63,6 +63,7 @@ def beta_hill_climb(feature, decision, search_type = "forward_search", mutate_ch
                 solution_tmp = np.copy(solution)
                 solution_tmp[j] = True 
                 fitn_tmp = degree_dependency(feature[:,solution_tmp], decision) 
+                eval_count += 1
                 if fitn_tmp > fitn_best:            
                     fitn_best = fitn_tmp
                     feat_best = j 
@@ -76,6 +77,7 @@ def beta_hill_climb(feature, decision, search_type = "forward_search", mutate_ch
                 # print "mutate idx %d" % midx
                 solution[midx] = not solution[midx]    
                 fitn_best = degree_dependency(feature[:,solution], decision) 
+                eval_count += 1
 
-    return feature[:,solution]
+    return [ feature[:,solution], eval_count ]
 

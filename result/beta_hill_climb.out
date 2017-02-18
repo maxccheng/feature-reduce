@@ -1,12 +1,12 @@
 Feature selection on 11 UCI datasets to minimize feature count and maximize scores
-00 derm2.dat       dim_selected=20/34 train_instances=  286/  358 precision=0.86 recall=0.87 fscore=0.86
-01 lung.dat        dim_selected=06/56 train_instances=   25/   32 precision=0.43 recall=0.50 fscore=0.45
-02 credit.dat      dim_selected=18/20 train_instances=  800/ 1000 precision=0.61 recall=0.61 fscore=0.61
-03 led.dat         dim_selected=23/24 train_instances= 1600/ 2000 precision=1.00 recall=1.00 fscore=1.00
-04 vote.dat        dim_selected=14/16 train_instances=  240/  300 precision=0.88 recall=0.89 fscore=0.88
-05 exactly.dat     dim_selected=12/13 train_instances=  800/ 1000 precision=0.88 recall=0.89 fscore=0.88
-06 heart.dat       dim_selected=11/13 train_instances=  235/  294 precision=0.71 recall=0.70 fscore=0.70
-07 m-of-n.dat      dim_selected=13/13 train_instances=  800/ 1000 precision=1.00 recall=1.00 fscore=1.00
-08 mushroom.dat    dim_selected=08/22 train_instances= 6499/ 8124 precision=1.00 recall=1.00 fscore=1.00
-09 exactly2.dat    dim_selected=13/13 train_instances=  800/ 1000 precision=0.56 recall=0.57 fscore=0.56
-10 derm.dat        dim_selected=18/34 train_instances=  292/  366 precision=0.92 recall=0.92 fscore=0.91
+00 derm2.dat       dims=34 trainset=  286/  358   mean_f 09.35   std_f 00.57   min_f 09.00   max_f 11.00   eval_count 01213   mean_fscore 00.90
+01 lung.dat        dims=56 trainset=   25/   32   mean_f 04.05   std_f 00.22   min_f 04.00   max_f 05.00   eval_count 00421   mean_fscore 00.70
+02 credit.dat      dims=20 trainset=  800/ 1000   mean_f 08.00   std_f 00.00   min_f 08.00   max_f 08.00   eval_count 00830   mean_fscore 00.59
+03 led.dat         dims=24 trainset= 1600/ 2000   mean_f 05.10   std_f 00.30   min_f 05.00   max_f 06.00   eval_count 00446   mean_fscore 01.00
+04 vote.dat        dims=16 trainset=  240/  300   mean_f 09.05   std_f 00.22   min_f 09.00   max_f 10.00   eval_count 00985   mean_fscore 00.92
+05 exactly.dat     dims=13 trainset=  800/ 1000   mean_f 07.20   std_f 00.40   min_f 07.00   max_f 08.00   eval_count 00668   mean_fscore 01.00
+06 heart.dat       dims=13 trainset=  235/  294   mean_f 07.00   std_f 00.00   min_f 07.00   max_f 07.00   eval_count 00645   mean_fscore 00.71
+07 m-of-n.dat      dims=13 trainset=  800/ 1000   mean_f 06.40   std_f 00.49   min_f 06.00   max_f 07.00   eval_count 00538   mean_fscore 01.00
+08 mushroom.dat    dims=22 trainset= 6499/ 8124   mean_f 05.05   std_f 00.22   min_f 05.00   max_f 06.00   eval_count 00404   mean_fscore 01.00
+09 exactly2.dat    dims=13 trainset=  800/ 1000   mean_f 10.00   std_f 00.00   min_f 10.00   max_f 10.00   eval_count 01119   mean_fscore 00.69
+10 derm.dat        dims=34 trainset=  292/  366   mean_f 06.30   std_f 00.46   min_f 06.00   max_f 07.00   eval_count 00681   mean_fscore 00.69

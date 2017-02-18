@@ -52,6 +52,7 @@ def greedy_hill_climb(feature, decision, search_type = "forward_search"):
         return float(count) / decision.size
         
     if search_type == "forward_search":
+        eval_count = 0
         solution = np.zeros(feature.shape[1], dtype=bool)
         fitn_best = 0.0
         while fitn_best < 1.0:
@@ -61,6 +62,7 @@ def greedy_hill_climb(feature, decision, search_type = "forward_search"):
                 solution_tmp = np.copy(solution)
                 solution_tmp[j] = True 
                 fitn_tmp = degree_dependency(feature[:,solution_tmp], decision) 
+                eval_count += 1
                 if fitn_tmp > fitn_best:            
                     fitn_best = fitn_tmp
                     feat_best = j 
@@ -69,5 +71,5 @@ def greedy_hill_climb(feature, decision, search_type = "forward_search"):
                 feat_best = np.where(solution == False)[0][0]
             solution[feat_best] = True  # add the fittest feature
 
-    return feature[:,solution]
+    return [ feature[:,solution], eval_count ]
 
