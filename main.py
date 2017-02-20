@@ -31,21 +31,21 @@ for i, f in enumerate(os.listdir(dsets_path)):
         X = ds[:, :-1] 
         y = ds[:, -1].reshape(-1, 1)
 
-        # do feature selection
         X_all_count = X.shape[1]
         fselect_rep = 20
-        result_collected = np.empty([fselect_rep, 5])
+        fselect_metric = np.empty(fselect_rep, dtype='int64')
         for m in xrange(fselect_rep):
-            fsresult = bhc.beta_hill_climb(X, y)   
-            X = fsresult[0]  
-            #np.set_printoptions(threshold=100000)
+            # do feature selection
+            fselect_result = bhc.beta_hill_climb(X, y)   
+            X_subset = fselect_result[0]  
+            fselect_metric[m] = X_subset.shape[1]
 
             metrics = []
-            train_rep = 10
+            train_rep = 1
             for j in xrange(train_rep):
                 # hold out split with ratio 80 training : 20 test, repeated randomly for 10 times
                 X_train, X_test, y_train, y_test = \
-                    train_test_split(X, y, test_size=0.20) 
+                    train_test_split(X_subset, y, test_size=0.20) 
 
                 # train classifier
                 clf = DecisionTreeClassifier()
@@ -58,18 +58,12 @@ for i, f in enumerate(os.listdir(dsets_path)):
                 score = score[:-1]
                 metrics = np.append(metrics, score) 
 
-            # average 10 repeat scores
-            metrics = metrics.reshape(train_rep, 3)
-            metrics_avg = np.mean(metrics, axis=0) 
-            metrics_avg = np.append(metrics_avg, X.shape[1])
-            metrics_avg = np.append(metrics_avg, fsresult[1])
-            result_collected[m] = metrics_avg
-
-        result_mean = np.mean(result_collected, axis=0)
-        result_stddev = np.std(result_collected, axis=0)
-        result_min = np.min(result_collected, axis=0)
-        result_max = np.max(result_collected, axis=0)
-        result_sum = np.sum(result_collected, axis=0)
-        # print average scores
-        print "%02d %-15s dims=%02d trainset=%5s/%5s   mean_f %05.2f   std_f %05.2f   min_f %05.2f   max_f %05.2f   eval_count %05d   mean_fscore %05.2f" % (i, f, X_all_count, X_train.shape[0], X.shape[0], result_mean[3], result_stddev[3], result_min[3], result_max[3], result_sum[4], result_mean[2])
+            # average 10 classification reps score
+          
+        # process 20 feature select reps score  
+        feat_bincount = np.bincount(fselect_metric) 
+        
+        # print scores
+        print "%02d %-15s dims=%02d trainset=%5s/%5s   bincount=" % (i, f, X_all_count, X_train.shape[0], X.shape[0])
+        print feat_bincount
 

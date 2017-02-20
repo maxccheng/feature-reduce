@@ -1,5 +1,5 @@
-"""Greedy hill climbing, forward search"""
-"""Termination criteria: degree of dependency == 1.0"""
+"""Greedy hill climbing"""
+"""Termination criteria: degree of dependency == 1.0 with max iteration = 100"""
 
 # suppress warnings e.g. divide by 0 in precision_recall_fscore_support()
 def warn(*args, **kwargs):
@@ -9,6 +9,7 @@ warnings.warn = warn
 
 import pudb 
 import os
+import sys
 import random as rnd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,7 +20,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import precision_recall_fscore_support
 
-def greedy_hill_climb(feature, decision, search_type = "forward_search"):
+def greedy_hill_climb(feature, decision, max_itr = 100):
 
     # Utility function
     def unique_rows(a):
@@ -33,7 +34,7 @@ def greedy_hill_climb(feature, decision, search_type = "forward_search"):
     # Calculate degree of dependency
     # By summing all element counts of each equivalent class
     #   that can be classified without ambiguity
-    def degree_dependency(chosen, decision):
+    def fitness(chosen, decision):
         uniques = unique_rows(chosen)                                   # select one instance out of each equivalent class 
         count = 0
         for eqclass in uniques:
@@ -49,27 +50,49 @@ def greedy_hill_climb(feature, decision, search_type = "forward_search"):
             if classifiable == True:
                 count = count + matched_idx[0].size 
 
-        return float(count) / decision.size
-        
-    if search_type == "forward_search":
-        eval_count = 0
-        solution = np.zeros(feature.shape[1], dtype=bool)
-        fitn_best = 0.0
-        while fitn_best < 1.0:
-            feat_best = -1  # select next fittest feature
+        return int(( 1.0 - (float(count) / decision.size) ) * 100000.0) + (chosen.shape[1] / 100.0)
 
-            for j in np.where(solution == False)[0]:
-                solution_tmp = np.copy(solution)
-                solution_tmp[j] = True 
-                fitn_tmp = degree_dependency(feature[:,solution_tmp], decision) 
-                eval_count += 1
-                if fitn_tmp > fitn_best:            
-                    fitn_best = fitn_tmp
-                    feat_best = j 
-        
-            if feat_best < 0:
-                feat_best = np.where(solution == False)[0][0]
-            solution[feat_best] = True  # add the fittest feature
+    # Generate neighborhood solution with minimal changes
+    # Visualize solution bit swapping as lateral movement to different slope position with same height
+    #   Bit count modification as going up or down a slope 
+    #   Repair solutions that have empty featureset
+    def neighborhood_sol(solution):
+        # different features but same count
+        if True in solution and False in solution:
+            pos_a = rnd.choice(np.where(solution == True)[0])        
+            pos_b = rnd.choice(np.where(solution == False)[0])        
+            solution[pos_a] = not solution[pos_a]
+            solution[pos_b] = not solution[pos_b]
 
-    return [ feature[:,solution], eval_count ]
+        # modify count 
+        if rnd.random() < 0.05:
+            pos = rnd.randint(0, len(solution) - 1)        
+            solution[pos] = not solution[pos]
+
+        # repair solution if selected feature count is zero
+        if True not in solution:
+            pos = rnd.randint(0, len(solution)-1)
+            solution[pos] = True
+
+        return solution
+        
+    tmp_sol = np.random.choice([False, True], size=feature.shape[1], p=[4./5, 1./5])
+    best_sol = tmp_sol
+    best_fitn = sys.float_info.max
+    eval_count = 0
+    itr = 0
+    while itr < max_itr:
+
+        tmp_sol = neighborhood_sol(best_sol)
+        tmp_fitn = fitness(feature[:, tmp_sol], decision) 
+        eval_count += 1
+        if tmp_fitn <= best_fitn:            
+            # print len(np.where(best_sol == True)[0]), best_fitn, tmp_fitn
+            best_sol = tmp_sol
+            best_fitn = tmp_fitn
+    
+        itr += 1
+
+    print len(np.where(best_sol == True)[0]), best_fitn
+    return [ feature[:, best_sol], eval_count ]
 
