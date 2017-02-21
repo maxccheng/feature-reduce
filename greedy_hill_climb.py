@@ -93,6 +93,6 @@ def greedy_hill_climb(feature, decision, max_itr = 100):
     
         itr += 1
 
-    print len(np.where(best_sol == True)[0]), best_fitn
+    # print len(np.where(best_sol == True)[0]), best_fitn
     return [ feature[:, best_sol], eval_count ]
 

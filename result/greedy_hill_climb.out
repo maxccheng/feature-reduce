@@ -1,12 +1,92 @@
 Feature selection on 11 UCI datasets to minimize feature count and maximize scores
-00 derm2.dat       dims=34 trainset=  286/  358   mean_f 10.00   std_f 00.00   min_f 10.00   max_f 10.00   eval_count 00295   mean_fscore 00.94
-01 lung.dat        dims=56 trainset=   25/   32   mean_f 04.00   std_f 00.00   min_f 04.00   max_f 04.00   eval_count 00218   mean_fscore 00.76
-02 credit.dat      dims=20 trainset=  800/ 1000   mean_f 08.00   std_f 00.00   min_f 08.00   max_f 08.00   eval_count 00132   mean_fscore 00.57
-03 led.dat         dims=24 trainset= 1600/ 2000   mean_f 06.00   std_f 00.00   min_f 06.00   max_f 06.00   eval_count 00129   mean_fscore 01.00
-04 vote.dat        dims=16 trainset=  240/  300   mean_f 09.00   std_f 00.00   min_f 09.00   max_f 09.00   eval_count 00108   mean_fscore 00.91
-05 exactly.dat     dims=13 trainset=  800/ 1000   mean_f 08.00   std_f 00.00   min_f 08.00   max_f 08.00   eval_count 00076   mean_fscore 00.99
-06 heart.dat       dims=13 trainset=  235/  294   mean_f 07.00   std_f 00.00   min_f 07.00   max_f 07.00   eval_count 00070   mean_fscore 00.72
-07 m-of-n.dat      dims=13 trainset=  800/ 1000   mean_f 07.00   std_f 00.00   min_f 07.00   max_f 07.00   eval_count 00070   mean_fscore 01.00
-08 mushroom.dat    dims=22 trainset= 6499/ 8124   mean_f 05.00   std_f 00.00   min_f 05.00   max_f 05.00   eval_count 00100   mean_fscore 01.00
-09 exactly2.dat    dims=13 trainset=  800/ 1000   mean_f 10.00   std_f 00.00   min_f 10.00   max_f 10.00   eval_count 00085   mean_fscore 00.69
-10 derm.dat        dims=34 trainset=  292/  366   mean_f 07.00   std_f 00.00   min_f 07.00   max_f 07.00   eval_count 00217   mean_fscore 00.72
+00 derm2.dat       dims=34 trainset=  286/  358    feature_distribution =
+[[ 4  1]
+ [ 6  1]
+ [ 7  1]
+ [ 8  5]
+ [ 9  3]
+ [10  2]
+ [11  3]
+ [12  3]
+ [13  1]]
+01 lung.dat        dims=56 trainset=   25/   32    feature_distribution =
+[[ 8  1]
+ [10  2]
+ [11  2]
+ [13  4]
+ [14  1]
+ [15  5]
+ [16  2]
+ [18  1]
+ [19  1]
+ [21  1]]
+02 credit.dat      dims=20 trainset=  800/ 1000    feature_distribution =
+[[ 2  3]
+ [ 3  3]
+ [ 5  4]
+ [ 6  3]
+ [ 7  3]
+ [ 8  3]
+ [11  1]]
+03 led.dat         dims=24 trainset= 1600/ 2000    feature_distribution =
+[[ 3  1]
+ [ 4  1]
+ [ 5  1]
+ [ 6  2]
+ [ 7  4]
+ [ 8  6]
+ [10  2]
+ [11  3]]
+04 vote.dat        dims=16 trainset=  240/  300    feature_distribution =
+[[2 2]
+ [4 4]
+ [5 5]
+ [6 6]
+ [7 1]
+ [9 2]]
+05 exactly.dat     dims=13 trainset=  800/ 1000    feature_distribution =
+[[1 1]
+ [2 2]
+ [3 3]
+ [4 3]
+ [5 9]
+ [6 2]]
+06 heart.dat       dims=13 trainset=  235/  294    feature_distribution =
+[[2 4]
+ [3 3]
+ [4 5]
+ [5 5]
+ [6 1]
+ [7 2]]
+07 m-of-n.dat      dims=13 trainset=  800/ 1000    feature_distribution =
+[[2 1]
+ [3 5]
+ [4 1]
+ [5 8]
+ [6 2]
+ [7 3]]
+08 mushroom.dat    dims=22 trainset= 6499/ 8124    feature_distribution =
+[[ 3  1]
+ [ 5  2]
+ [ 6  3]
+ [ 7  3]
+ [ 8  7]
+ [10  3]
+ [11  1]]
+09 exactly2.dat    dims=13 trainset=  800/ 1000    feature_distribution =
+[[2 3]
+ [3 6]
+ [4 2]
+ [5 4]
+ [6 1]
+ [7 4]]
+10 derm.dat        dims=34 trainset=  292/  366    feature_distribution =
+[[ 4  1]
+ [ 5  1]
+ [ 6  1]
+ [ 8  1]
+ [ 9  4]
+ [10  5]
+ [11  1]
+ [13  4]
+ [14  2]]

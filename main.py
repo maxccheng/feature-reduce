@@ -36,7 +36,7 @@ for i, f in enumerate(os.listdir(dsets_path)):
         fselect_metric = np.empty(fselect_rep, dtype='int64')
         for m in xrange(fselect_rep):
             # do feature selection
-            fselect_result = bhc.beta_hill_climb(X, y)   
+            fselect_result = hc.greedy_hill_climb(X, y)   
             X_subset = fselect_result[0]  
             fselect_metric[m] = X_subset.shape[1]
 
@@ -64,6 +64,7 @@ for i, f in enumerate(os.listdir(dsets_path)):
         feat_bincount = np.bincount(fselect_metric) 
         
         # print scores
-        print "%02d %-15s dims=%02d trainset=%5s/%5s   bincount=" % (i, f, X_all_count, X_train.shape[0], X.shape[0])
-        print feat_bincount
+        print "%02d %-15s dims=%02d trainset=%5s/%5s    feature_distribution =" % (i, f, X_all_count, X_train.shape[0], X.shape[0])
+        feat_bincount = np.column_stack((np.arange(len(feat_bincount)), feat_bincount))
+        print feat_bincount[np.where(feat_bincount[:,1] > 0)[0]]
 
