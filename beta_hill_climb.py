@@ -56,7 +56,7 @@ def beta_hill_climb(feature, decision, max_itr = 100):
     # Generate neighborhood solution with minimal changes
     # Visualize solution bit swapping as lateral movement to different slope position with same height
     #   Bit count modification as going up or down a slope 
-    #   Repair solutions that have empty featureset
+    #   Modify solution parameter in place
     def neighborhood_sol(solution):
         # different features but same count
         if True in solution and False in solution:
@@ -79,9 +79,9 @@ def beta_hill_climb(feature, decision, max_itr = 100):
     itr = 0
     # max_itr = max_itr * len(best_sol) / 5
     while itr < max_itr:
-        tmp_sol = neighborhood_sol(best_sol)
-        eval_count += 1
+        tmp_sol = neighborhood_sol(np.copy(best_sol))
 
+        # mutate solution bit string
         for i in xrange(len(tmp_sol)):
             if rnd.random() < 0.005:
                 tmp_sol[i] = not tmp_sol[i]
@@ -92,6 +92,7 @@ def beta_hill_climb(feature, decision, max_itr = 100):
             tmp_sol[pos] = True
 
         tmp_fitn = fitness(feature[:, tmp_sol], decision) 
+        eval_count += 1
 
         if tmp_fitn <= best_fitn:            
             best_sol = tmp_sol
@@ -99,6 +100,6 @@ def beta_hill_climb(feature, decision, max_itr = 100):
     
         itr += 1
 
-    # print len(np.where(best_sol == True)[0]), best_fitn, fitness(feature[:, best_sol], decision) 
+    print len(np.where(best_sol == True)[0]), best_fitn
     return [ feature[:, best_sol], eval_count ]
 

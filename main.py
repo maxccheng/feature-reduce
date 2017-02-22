@@ -58,11 +58,6 @@ for i, f in enumerate(os.listdir(dsets_path)):
                 score = score[:-1]
                 metrics = np.append(metrics, score) 
 
-            # average 10 classification reps score
-
-
-        print fselect_metric
-          
         # process 20 feature select reps score  
         feat_bincount = np.bincount(fselect_metric) 
         
