@@ -36,7 +36,7 @@ for i, f in enumerate(os.listdir(dsets_path)):
         fselect_metric = np.empty(fselect_rep, dtype='int64')
         for m in xrange(fselect_rep):
             # do feature selection
-            fselect_result = hc.greedy_hill_climb(X, y)   
+            fselect_result = bhc.beta_hill_climb(X, y)   
             X_subset = fselect_result[0]  
             fselect_metric[m] = X_subset.shape[1]
 
@@ -59,6 +59,9 @@ for i, f in enumerate(os.listdir(dsets_path)):
                 metrics = np.append(metrics, score) 
 
             # average 10 classification reps score
+
+
+        print fselect_metric
           
         # process 20 feature select reps score  
         feat_bincount = np.bincount(fselect_metric) 

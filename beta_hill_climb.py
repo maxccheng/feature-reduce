@@ -1,5 +1,6 @@
 """Beta hill climbing"""
 """Termination criteria: degree of dependency == 1.0 with max iteration = 100"""
+"""Mutation characteristics: 0.5% for every bit in solution string"""
 
 # suppress warnings e.g. divide by 0 in precision_recall_fscore_support()
 def warn(*args, **kwargs):
@@ -65,14 +66,9 @@ def beta_hill_climb(feature, decision, max_itr = 100):
             solution[pos_b] = not solution[pos_b]
 
         # modify count 
-        if rnd.random() < 0.05:
+        if rnd.random() < 0.25:
             pos = rnd.randint(0, len(solution) - 1)        
             solution[pos] = not solution[pos]
-
-        # repair solution if selected feature count is zero
-        if True not in solution:
-            pos = rnd.randint(0, len(solution)-1)
-            solution[pos] = True
 
         return solution
         
@@ -83,25 +79,26 @@ def beta_hill_climb(feature, decision, max_itr = 100):
     itr = 0
     # max_itr = max_itr * len(best_sol) / 5
     while itr < max_itr:
-
         tmp_sol = neighborhood_sol(best_sol)
-        # tmp_fitn = fitness(feature[:, tmp_sol], decision) 
         eval_count += 1
 
         for i in xrange(len(tmp_sol)):
             if rnd.random() < 0.005:
-                # print "mutate %d" % (i)
                 tmp_sol[i] = not tmp_sol[i]
+
+        # repair solution if selected feature count is zero
+        if True not in tmp_sol:
+            pos = rnd.randint(0, len(tmp_sol)-1)
+            tmp_sol[pos] = True
 
         tmp_fitn = fitness(feature[:, tmp_sol], decision) 
 
         if tmp_fitn <= best_fitn:            
-            # print len(np.where(best_sol == True)[0]), best_fitn, tmp_fitn
             best_sol = tmp_sol
             best_fitn = tmp_fitn
     
         itr += 1
 
-    # print len(np.where(best_sol == True)[0]), best_fitn
+    # print len(np.where(best_sol == True)[0]), best_fitn, fitness(feature[:, best_sol], decision) 
     return [ feature[:, best_sol], eval_count ]
 
