@@ -83,7 +83,7 @@ def beta_hill_climb(feature, decision, max_itr = 100):
 
         # mutate solution bit string
         for i in xrange(len(tmp_sol)):
-            if rnd.random() < 0.005:
+            if rnd.random() < 0.05:
                 tmp_sol[i] = not tmp_sol[i]
 
         # repair solution if selected feature count is zero
