@@ -23,7 +23,7 @@ from sklearn.metrics import precision_recall_fscore_support
 
 dsets_path = "./datasets/"
 dset_ext = ".dat"
-for i, f in enumerate(os.listdir(dsets_path)):
+for i, f in enumerate(sorted(os.listdir(dsets_path))):
     if f.endswith(dset_ext): 
         ds = np.loadtxt(dsets_path + f)
         ds = ds.astype(int)

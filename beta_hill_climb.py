@@ -58,19 +58,36 @@ def beta_hill_climb(feature, decision, max_itr = 100):
     #   Bit count modification as going up or down a slope 
     #   Modify solution parameter in place
     def neighborhood_sol(solution):
-        # different features but same count
-        if True in solution and False in solution:
-            pos_a = rnd.choice(np.where(solution == True)[0])        
-            pos_b = rnd.choice(np.where(solution == False)[0])        
-            solution[pos_a] = not solution[pos_a]
-            solution[pos_b] = not solution[pos_b]
-
-        # modify count 
-        if rnd.random() < 0.25:
+        if rnd.random < 0.90:
+            # different features but same count
+            if True in solution and False in solution:
+                cnt = int(abs(round(np.random.normal(0, 0.5, 1)[0]))) + 1
+                for k in xrange(cnt):
+                    pos_a = rnd.choice(np.where(solution == True)[0])        
+                    pos_b = rnd.choice(np.where(solution == False)[0])        
+                    solution[pos_a] = not solution[pos_a]
+                    solution[pos_b] = not solution[pos_b]
+        else:
+            # modify count 
             pos = rnd.randint(0, len(solution) - 1)        
             solution[pos] = not solution[pos]
 
         return solution
+
+    def improve(solution, fitn, feature, decision):
+        new_fitn = fitn
+        max_tries = 10
+        tries = 0
+        original = np.copy(solution)
+
+        while tries < max_tries:
+            x = neighborhood_sol(solution)  
+            new_fitn = fitness(feature[:, x], decision)
+            if new_fitn <= fitn:
+                return x
+            tries += 1        
+
+        return original
         
     tmp_sol = np.random.choice([False, True], size=feature.shape[1], p=[4./5, 1./5])
     best_sol = tmp_sol
@@ -79,11 +96,12 @@ def beta_hill_climb(feature, decision, max_itr = 100):
     itr = 0
     # max_itr = max_itr * len(best_sol) / 5
     while itr < max_itr:
-        tmp_sol = neighborhood_sol(np.copy(best_sol))
+        # improve the current solution in existing neighborhood
+        tmp_sol = improve(np.copy(best_sol), best_fitn, feature, decision)
 
         # mutate solution bit string
         for i in xrange(len(tmp_sol)):
-            if rnd.random() < 0.05:
+            if rnd.random() < 0.005:
                 tmp_sol[i] = not tmp_sol[i]
 
         # repair solution if selected feature count is zero
@@ -99,6 +117,7 @@ def beta_hill_climb(feature, decision, max_itr = 100):
             best_fitn = tmp_fitn
     
         itr += 1
+        # print itr, best_fitn
 
     print len(np.where(best_sol == True)[0]), best_fitn
     return [ feature[:, best_sol], eval_count ]
