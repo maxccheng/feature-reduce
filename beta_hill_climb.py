@@ -23,7 +23,7 @@ from sklearn.metrics import precision_recall_fscore_support
 
 def beta_hill_climb(feature, decision, max_itr = 100):
 
-    # Utility function
+    # Select unique rows from numpy array
     def unique_rows(a):
         if a.size:
             a = np.ascontiguousarray(a)
@@ -50,7 +50,10 @@ def beta_hill_climb(feature, decision, max_itr = 100):
                     break 
             if classifiable == True:
                 count = count + matched_idx[0].size 
-
+        
+        # Example: If fitness is 40000.11 
+        #          (100000 - 40000.0) / 100000 = 0.6 which is degree of dependency 
+        #          0.11 * 100 = 11 which is number of features
         return int(( 1.0 - (float(count) / decision.size) ) * 100000.0) + (chosen.shape[1] / 100.0)
 
     # Generate neighborhood solution with minimal changes
@@ -59,8 +62,9 @@ def beta_hill_climb(feature, decision, max_itr = 100):
     #   Modify solution parameter in place
     def neighborhood_sol(solution):
         if rnd.random < 0.90:
-            # different features but same count
+            # swap selected features
             if True in solution and False in solution:
+                # swap a normalized random amount of feature pairs
                 cnt = int(abs(round(np.random.normal(0, 0.5, 1)[0]))) + 1
                 for k in xrange(cnt):
                     pos_a = rnd.choice(np.where(solution == True)[0])        
@@ -68,7 +72,7 @@ def beta_hill_climb(feature, decision, max_itr = 100):
                     solution[pos_a] = not solution[pos_a]
                     solution[pos_b] = not solution[pos_b]
         else:
-            # modify count 
+            # add or remove feature
             pos = rnd.randint(0, len(solution) - 1)        
             solution[pos] = not solution[pos]
 
@@ -94,14 +98,13 @@ def beta_hill_climb(feature, decision, max_itr = 100):
     best_fitn = sys.float_info.max
     eval_count = 0
     itr = 0
-    # max_itr = max_itr * len(best_sol) / 5
     while itr < max_itr:
         # improve the current solution in existing neighborhood
         tmp_sol = improve(np.copy(best_sol), best_fitn, feature, decision)
 
         # mutate solution bit string
         for i in xrange(len(tmp_sol)):
-            if rnd.random() < 0.005:
+            if rnd.random() < 0.05:
                 tmp_sol[i] = not tmp_sol[i]
 
         # repair solution if selected feature count is zero
