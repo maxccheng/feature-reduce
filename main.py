@@ -13,7 +13,7 @@ import random as rnd
 import numpy as np
 import matplotlib.pyplot as plt
 import itertools as itl
-import greedy_hill_climb as hc
+import hill_climb as hc
 import beta_hill_climb as bhc
 from matplotlib.colors import ListedColormap
 from sklearn.model_selection import train_test_split
@@ -37,6 +37,7 @@ for i, f in enumerate(sorted(os.listdir(dsets_path))):
         for m in xrange(fselect_rep):
             # do feature selection
             fselect_result = bhc.beta_hill_climb(X, y)   
+            # fselect_result = bhc.beta_hill_climb(X, y)   
             X_subset = fselect_result[0]  
             fselect_metric[m] = X_subset.shape[1]
 
