@@ -1,6 +1,5 @@
 """Hill climbing"""
 """Termination criteria: deg of dependency and feature count as fitness components, max iteration = 100"""
-"""Mutation operator: 5% to 0.05% for every bit in solution"""
 
 # suppress warnings e.g. divide by 0 in precision_recall_fscore_support()
 def warn(*args, **kwargs):
@@ -21,7 +20,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import precision_recall_fscore_support
 
-def beta_hill_climb(feature, decision, max_itr = 100):
+def hill_climb(feature, decision, max_itr = 100):
 
     # Select unique rows from numpy array
     def unique_rows(a):
@@ -105,10 +104,10 @@ def beta_hill_climb(feature, decision, max_itr = 100):
         # improve the current solution in existing neighborhood
         tmp_sol = improve(best_sol, best_fitn, feature, decision, feature.shape[1])
 
-        # mutation operator
-        for i in xrange(len(tmp_sol)):
-            if rnd.random() < 0.05:
-                tmp_sol[i] = not tmp_sol[i]
+        # mutate solution bit string
+#        for i in xrange(len(tmp_sol)):
+#            if rnd.random() < 0.05:
+#                tmp_sol[i] = not tmp_sol[i]
 
         # repair solution if selected feature count is zero
         if True not in tmp_sol:
