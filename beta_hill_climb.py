@@ -1,4 +1,4 @@
-"""Hill climbing"""
+"""Beta hill climbing"""
 """Termination criteria: deg of dependency and feature count as fitness components, max iteration = 100"""
 """Mutation operator: 5% to 0.05% for every bit in solution"""
 
