@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import itertools as itl
 import hill_climb as hc
 import beta_hill_climb as bhc
+import tabu_search as ts
 from matplotlib.colors import ListedColormap
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
