@@ -21,6 +21,15 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import precision_recall_fscore_support
 
+def plot_graph(xdata, ydata, fname, title, xlabel, ylabel):
+    fig = plt.figure()
+    plt.plot(xdata, ydata)
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    fig.savefig(fname)
+    plt.close(fig)
+
 dsets_path = "./datasets/"
 dset_ext = ".dat"
 for i, f in enumerate(sorted(os.listdir(dsets_path))):
@@ -40,6 +49,9 @@ for i, f in enumerate(sorted(os.listdir(dsets_path))):
             # fselect_result = bhc.beta_hill_climb(X, y)   
             X_subset = fselect_result[0]  
             fselect_metric[m] = X_subset.shape[1]
+            search_progress = fselect_result[1]
+            fname = f + "_" + str(m) + '.png'
+            #plot_graph(np.arange(search_progress.size-1), search_progress[1:], fname, 'Search progress for ' + f + ' attempt #' + str(m+1), 'Generation', 'Fitness') 
 
             metrics = []
             train_rep = 1
@@ -61,6 +73,12 @@ for i, f in enumerate(sorted(os.listdir(dsets_path))):
 
         # process 20 feature select reps score  
         feat_bincount = np.bincount(fselect_metric) 
+        print metrics[0]
+        pre_mean = np.mean(metrics[0])
+        pre_min = np.min(metrics[0])
+        pre_max = np.max(metrics[0])
+        pre_stddev = np.std(metrics[0])
+        print pre_mean, pre_min, pre_max, pre_stddev
         
         # print scores
         print "%02d %-15s dims=%02d trainset=%5s/%5s    feature_distribution =" % (i, f, X_all_count, X_train.shape[0], X.shape[0])
