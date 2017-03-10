@@ -51,7 +51,7 @@ def beta_hill_climb(feature, decision, max_itr = 100):
             if classifiable == True:
                 count = count + matched_idx[0].size 
         
-        return float(count) / decision.size * 90.0 + float(total_feature - chosen.shape[1]) / total_feature * 10.0
+        return float(count) / decision.size * 80.0 + float(total_feature - chosen.shape[1]) / total_feature * 20.0
 
     # Generate neighborhood solution
     # Change feature combinations 90% of the time, amount of changed features is normal randomized 
@@ -96,18 +96,20 @@ def beta_hill_climb(feature, decision, max_itr = 100):
 
         return sol_chosen
         
-    tmp_sol = np.random.choice([False, True], size=feature.shape[1], p=[4./5, 1./5])
+    tmp_sol = np.random.choice([False, True], size=feature.shape[1], p=[0./5, 5./5])
+    # tmp_sol = np.random.randint(2, size=feature.shape[1]).astype(bool)
     best_sol = tmp_sol
     best_fitn = 0.0
     eval_count = 0
     itr = 0
+    plt_fitness = np.zeros(max_itr)
     while itr < max_itr:
         # improve the current solution in existing neighborhood
         tmp_sol = improve(best_sol, best_fitn, feature, decision, feature.shape[1])
 
         # mutation operator
         for i in xrange(len(tmp_sol)):
-            if rnd.random() < 0.0005:
+            if rnd.random() < 0.05:
                 tmp_sol[i] = not tmp_sol[i]
 
         # repair solution if selected feature count is zero
@@ -117,14 +119,15 @@ def beta_hill_climb(feature, decision, max_itr = 100):
 
         tmp_fitn = fitness(feature[:, tmp_sol], decision, feature.shape[1]) 
         eval_count += 1
+        # print itr, len(np.where(tmp_sol == True)[0]), tmp_fitn, best_fitn
 
         if tmp_fitn >= best_fitn:            
             best_sol = tmp_sol
             best_fitn = tmp_fitn
     
+        plt_fitness[itr] = best_fitn
         itr += 1
-        #print itr, best_fitn
 
     print len(np.where(best_sol == True)[0]), best_fitn
-    return [ feature[:, best_sol], eval_count ]
+    return [ feature[:, best_sol], plt_fitness]
 
