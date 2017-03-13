@@ -1,7 +1,7 @@
 """Tabu search"""
 """Termination criteria: deg of dependency and feature count as fitness components, max iteration = 100"""
 """Tabu solution representation: bit string"""
-"""Tabu list length: n/2"""
+"""Tabu list length: 20"""
 
 # suppress warnings e.g. divide by 0 in precision_recall_fscore_support()
 def warn(*args, **kwargs):
@@ -82,7 +82,7 @@ def tabu_search(feature, decision, max_itr = 100):
     def improve(solution, fitn, feature, decision, feature_count, tabu_list):
         best_fitn = fitn
         max_tries = round(feature_count / 2)
-        tabu_list_sz = 10
+        tabu_list_sz = 20
         tries = 0
         sol_stack = np.stack([np.copy(solution)], axis = 0)
 
@@ -93,7 +93,7 @@ def tabu_search(feature, decision, max_itr = 100):
                 x = neighborhood_sol(np.copy(solution))  
                 foundidx = np.where( (tabu_list == (x)).all(axis = 1) )[0] 
 
-            if tabu_list.shape[0] > tabu_list_sz: 
+            if np.where(tabu_list != 0.)[0] > tabu_list_sz: 
                 tabu_list = np.delete(tabu_list, 0, axis = 0)
             tabu_list = np.append(tabu_list, [x], axis = 0)
 
@@ -109,17 +109,20 @@ def tabu_search(feature, decision, max_itr = 100):
 
         return sol_chosen
         
-    tmp_sol = np.random.choice([False, True], size=feature.shape[1], p=[0./5, 5./5])
+    tmp_sol = np.random.choice([False, True], size=feature.shape[1], p=[1./5, 4./5])
     # tmp_sol = np.random.randint(2, size=feature.shape[1]).astype(bool)
     best_sol = tmp_sol
     best_fitn = 0.0
     eval_count = 0
+    tabu_list_sz = 20
     itr = 0
     plt_fitness = np.zeros(max_itr)
-    tabu_list = np.zeros([0, feature.shape[1]])
+    tabu_list = np.zeros([tabu_list_sz, feature.shape[1]])
     while itr < max_itr:
         # improve the current solution in existing neighborhood
         tmp_sol = improve(best_sol, best_fitn, feature, decision, feature.shape[1], tabu_list)
+        #tmp_sol = neighborhood_sol(np.copy(best_sol))
+        print tabu_list
 
         # mutation operator
         for i in xrange(len(tmp_sol)):

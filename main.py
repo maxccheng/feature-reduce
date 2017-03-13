@@ -13,9 +13,12 @@ import random as rnd
 import numpy as np
 import matplotlib.pyplot as plt
 import itertools as itl
+
 import hill_climb as hc
 import beta_hill_climb as bhc
 import tabu_search as ts
+import simulated_annealing as sa
+
 from matplotlib.colors import ListedColormap
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -46,8 +49,10 @@ for i, f in enumerate(sorted(os.listdir(dsets_path))):
         fselect_metric = np.empty(fselect_rep, dtype='int64')
         for m in xrange(fselect_rep):
             # do feature selection
+            #fselect_result = hc.hill_climb(X, y)   
             fselect_result = bhc.beta_hill_climb(X, y)   
-            # fselect_result = bhc.beta_hill_climb(X, y)   
+            #fselect_result = ts.tabu_search(X, y)   
+            #fselect_result = sa.simulated_annealing(X, y)   
             X_subset = fselect_result[0]  
             fselect_metric[m] = X_subset.shape[1]
             search_progress = fselect_result[1]

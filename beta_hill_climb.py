@@ -51,7 +51,7 @@ def beta_hill_climb(feature, decision, max_itr = 100):
             if classifiable == True:
                 count = count + matched_idx[0].size 
         
-        return float(count) / decision.size * 80.0 + float(total_feature - chosen.shape[1]) / total_feature * 20.0
+        return float(count) / decision.size * 100.0 + float(total_feature - chosen.shape[1]) / total_feature * 1.0
 
     # Generate neighborhood solution
     # Change feature combinations 90% of the time, amount of changed features is normal randomized 
@@ -78,7 +78,7 @@ def beta_hill_climb(feature, decision, max_itr = 100):
     # Improve solution and return randomly one of the best neighbors if they have same fitness
     def improve(solution, fitn, feature, decision, feature_count):
         best_fitn = fitn
-        max_tries = 20
+        max_tries = feature_count
         tries = 0
         sol_stack = np.stack([np.copy(solution)], axis = 0)
 
@@ -96,7 +96,7 @@ def beta_hill_climb(feature, decision, max_itr = 100):
 
         return sol_chosen
         
-    tmp_sol = np.random.choice([False, True], size=feature.shape[1], p=[0./5, 5./5])
+    tmp_sol = np.random.choice([False, True], size=feature.shape[1], p=[4./5, 1./5])
     # tmp_sol = np.random.randint(2, size=feature.shape[1]).astype(bool)
     best_sol = tmp_sol
     best_fitn = 0.0
@@ -109,7 +109,7 @@ def beta_hill_climb(feature, decision, max_itr = 100):
 
         # mutation operator
         for i in xrange(len(tmp_sol)):
-            if rnd.random() < 0.05:
+            if rnd.random() < 0.0005:
                 tmp_sol[i] = not tmp_sol[i]
 
         # repair solution if selected feature count is zero
@@ -119,7 +119,7 @@ def beta_hill_climb(feature, decision, max_itr = 100):
 
         tmp_fitn = fitness(feature[:, tmp_sol], decision, feature.shape[1]) 
         eval_count += 1
-        # print itr, len(np.where(tmp_sol == True)[0]), tmp_fitn, best_fitn
+        #print itr, len(np.where(tmp_sol == True)[0]), tmp_fitn, best_fitn
 
         if tmp_fitn >= best_fitn:            
             best_sol = tmp_sol

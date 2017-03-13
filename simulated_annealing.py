@@ -1,5 +1,7 @@
-"""Hill climbing"""
+"""Simulated annealing"""
 """Termination criteria: deg of dependency and feature count as fitness components, max iteration = 100"""
+"""Initial temperature: n * 2 where n is number of features"""
+"""Cooling schedule: 0.93 * T(t) per iteration"""
 
 # suppress warnings e.g. divide by 0 in precision_recall_fscore_support()
 def warn(*args, **kwargs):
@@ -14,13 +16,14 @@ import random as rnd
 import numpy as np
 import matplotlib.pyplot as plt
 import itertools as itl
+import math
 from matplotlib.colors import ListedColormap
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import precision_recall_fscore_support
 
-def hill_climb(feature, decision, max_itr = 100):
+def simulated_annealing(feature, decision, max_itr = 100):
 
     # Select unique rows from numpy array
     def unique_rows(a):
@@ -51,6 +54,11 @@ def hill_climb(feature, decision, max_itr = 100):
                 count = count + matched_idx[0].size 
         
         return float(count) / decision.size * 80.0 + float(total_feature - chosen.shape[1]) / total_feature * 20.0
+
+    def accept_chance(energy_now, energy_new, temp):
+        if energy_now < energy_new:
+            return 1.0
+        return math.exp((energy_new - energy_now) * 5.0 / temp)
 
     # Generate neighborhood solution
     # Change feature combinations 90% of the time, amount of changed features is normal randomized 
@@ -94,18 +102,21 @@ def hill_climb(feature, decision, max_itr = 100):
         sol_chosen = sol_stack[rnd.randint(0, sol_stack.shape[0] - 1), :] 
 
         return sol_chosen
-        
-    tmp_sol = np.random.choice([False, True], size=feature.shape[1], p=[1./5, 4./5])
+
+    tmp_sol = np.random.choice([False, True], size=feature.shape[1], p=[2.5/5, 2.5/5])
+    #tmp_sol = np.random.randint(2, size=feature.shape[1]).astype(bool)
     best_sol = tmp_sol
     best_fitn = 0.0
     eval_count = 0
     itr = 0
+    plt_fitness = np.zeros(max_itr)
+    temp0 = feature.shape[1] * 2
+    temp = temp0
+    cool_constant = 0.93
     while itr < max_itr:
-        # improve the current solution in existing neighborhood
+        # generate a random solution from current neighborhood
         tmp_sol = improve(best_sol, best_fitn, feature, decision, feature.shape[1])
-        #tmp_sol = neighborhood_sol(np.copy(best_sol))
 
-        # repair solution if selected feature count is zero
         if True not in tmp_sol:
             pos = rnd.randint(0, len(tmp_sol) - 1)
             tmp_sol[pos] = True
@@ -113,13 +124,34 @@ def hill_climb(feature, decision, max_itr = 100):
         tmp_fitn = fitness(feature[:, tmp_sol], decision, feature.shape[1]) 
         eval_count += 1
 
-        if tmp_fitn >= best_fitn:            
+        if tmp_fitn > best_fitn:
             best_sol = tmp_sol
             best_fitn = tmp_fitn
+        elif tmp_fitn <= best_fitn:
+            # mutation operator
+            tmp_sol = np.copy(best_sol)
+            for i in xrange(len(tmp_sol)):
+                if rnd.random() < 0.0005:
+                    tmp_sol[i] = not tmp_sol[i]
+
+            # repair solution if selected feature count is zero
+            if True not in tmp_sol:
+                pos = rnd.randint(0, len(tmp_sol) - 1)
+                tmp_sol[pos] = True
+
+            tmp_fitn = fitness(feature[:, tmp_sol], decision, feature.shape[1]) 
+            r = accept_chance(best_fitn, tmp_fitn, temp)
+            if rnd.random() < r:
+                #print r, best_fitn, tmp_fitn
+                best_sol = tmp_sol
+                best_fitn = tmp_fitn
+                
+        #print itr, len(np.where(tmp_sol == True)[0]), tmp_fitn, best_fitn
     
+        plt_fitness[itr] = best_fitn
         itr += 1
-        #print itr, len(np.where(best_sol == True)[0]), best_fitn
+        temp = temp * cool_constant
 
     print len(np.where(best_sol == True)[0]), best_fitn
-    return [ feature[:, best_sol], eval_count ]
+    return [ feature[:, best_sol], plt_fitness]
 
