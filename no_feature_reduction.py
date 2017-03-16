@@ -52,9 +52,12 @@ for i, f in enumerate(os.listdir(dsets_path)):
             metrics = np.append(metrics, score) 
 
         # average 10 repeat scores
-        metrics = metrics.reshape(rep, 3)
-        metrics_avg = np.mean(metrics, axis=0) 
+        #metrics = metrics.reshape(rep, 3)
+        metrics_mean = np.mean(metrics, axis=0) 
+        metrics_min = np.min(metrics, axis=0) 
+        metrics_max = np.max(metrics, axis=0) 
+        metrics_stddev = np.std(metrics, axis=0) 
 
         # print average scores
-        print "%02d %-15s dim_selected=%02d/%02d train_instances=%5s/%5s precision=%.2f recall=%.2f fscore=%.2f" % (i, f, X.shape[1], X_all_count, X_train.shape[0], X.shape[0], metrics_avg[0], metrics_avg[1], metrics_avg[2])
+        print "%02d %-15s dim_selected=%02d/%02d train_instances=%5s/%5s fscore=%.2f %.2f %.2f %.2f" % (i, f, X.shape[1], X_all_count, X_train.shape[0], X.shape[0], metrics_mean, metrics_min, metrics_max, metrics_stddev)
 

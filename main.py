@@ -60,7 +60,7 @@ for i, f in enumerate(sorted(os.listdir(dsets_path))):
             #plot_graph(np.arange(search_progress.size-1), search_progress[1:], fname, 'Search progress for ' + f + ' attempt #' + str(m+1), 'Generation', 'Fitness') 
 
             metrics = []
-            train_rep = 1
+            train_rep = 10
             for j in xrange(train_rep):
                 # hold out split with ratio 80 training : 20 test, repeated randomly for 10 times
                 X_train, X_test, y_train, y_test = \
@@ -79,11 +79,11 @@ for i, f in enumerate(sorted(os.listdir(dsets_path))):
 
         # process 20 feature select reps score  
         feat_bincount = np.bincount(fselect_metric) 
-        print metrics[0]
-        pre_mean = np.mean(metrics[0])
-        pre_min = np.min(metrics[0])
-        pre_max = np.max(metrics[0])
-        pre_stddev = np.std(metrics[0])
+        #print metrics
+        pre_mean = np.mean(metrics)
+        pre_min = np.min(metrics)
+        pre_max = np.max(metrics)
+        pre_stddev = np.std(metrics)
         print pre_mean, pre_min, pre_max, pre_stddev
         
         # print scores

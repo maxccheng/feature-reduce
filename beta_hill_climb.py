@@ -35,7 +35,7 @@ def beta_hill_climb(feature, decision, max_itr = 100):
     # Calculate degree of dependency
     # By summing all element counts of each equivalent class
     #   that can be classified without ambiguity
-    def fitness(chosen, decision, total_feature):
+    def deg_of_dep(chosen, decision, total_feature):
         uniques = unique_rows(chosen)                                   # select one instance out of each equivalent class 
         count = 0
         for eqclass in uniques:
@@ -51,7 +51,11 @@ def beta_hill_climb(feature, decision, max_itr = 100):
             if classifiable == True:
                 count = count + matched_idx[0].size 
         
-        return float(count) / decision.size * 100.0 + float(total_feature - chosen.shape[1]) / total_feature * 1.0
+        return float(count) / decision.size 
+
+    def fitness(chosen, decision, total_feature):
+        return deg_of_dep(chosen, decision, total_feature) * 80.0 + \
+               float(total_feature - chosen.shape[1]) / total_feature * 20.0
 
     # Generate neighborhood solution
     # Change feature combinations 90% of the time, amount of changed features is normal randomized 
@@ -96,7 +100,7 @@ def beta_hill_climb(feature, decision, max_itr = 100):
 
         return sol_chosen
         
-    tmp_sol = np.random.choice([False, True], size=feature.shape[1], p=[4./5, 1./5])
+    tmp_sol = np.random.choice([False, True], size=feature.shape[1], p=[1./5, 4./5])
     # tmp_sol = np.random.randint(2, size=feature.shape[1]).astype(bool)
     best_sol = tmp_sol
     best_fitn = 0.0
@@ -119,7 +123,7 @@ def beta_hill_climb(feature, decision, max_itr = 100):
 
         tmp_fitn = fitness(feature[:, tmp_sol], decision, feature.shape[1]) 
         eval_count += 1
-        #print itr, len(np.where(tmp_sol == True)[0]), tmp_fitn, best_fitn
+        print itr, len(np.where(tmp_sol == True)[0]), tmp_fitn, best_fitn
 
         if tmp_fitn >= best_fitn:            
             best_sol = tmp_sol
