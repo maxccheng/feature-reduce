@@ -51,7 +51,10 @@ def beta_hill_climb(feature, decision, max_itr = 100):
             if classifiable == True:
                 count = count + matched_idx[0].size 
         
-        return float(count) / decision.size 
+        result = float(count) / decision.size 
+        if result == 1.00:
+            result = 1.05
+        return result
 
     def fitness(chosen, decision, total_feature):
         return deg_of_dep(chosen, decision, total_feature) * 80.0 + \
@@ -123,7 +126,7 @@ def beta_hill_climb(feature, decision, max_itr = 100):
 
         tmp_fitn = fitness(feature[:, tmp_sol], decision, feature.shape[1]) 
         eval_count += 1
-        print itr, len(np.where(tmp_sol == True)[0]), tmp_fitn, best_fitn
+        #print itr, len(np.where(tmp_sol == True)[0]), tmp_fitn, len(np.where(best_sol == True)[0]), best_fitn
 
         if tmp_fitn >= best_fitn:            
             best_sol = tmp_sol
@@ -132,6 +135,6 @@ def beta_hill_climb(feature, decision, max_itr = 100):
         plt_fitness[itr] = best_fitn
         itr += 1
 
-    print len(np.where(best_sol == True)[0]), best_fitn
+    #print len(np.where(best_sol == True)[0]), best_fitn
     return [ feature[:, best_sol], plt_fitness]
 
