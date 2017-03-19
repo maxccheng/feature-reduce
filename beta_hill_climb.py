@@ -15,6 +15,7 @@ import random as rnd
 import numpy as np
 import matplotlib.pyplot as plt
 import itertools as itl
+import math
 from matplotlib.colors import ListedColormap
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -85,7 +86,8 @@ def beta_hill_climb(feature, decision, max_itr = 100):
     # Improve solution and return randomly one of the best neighbors if they have same fitness
     def improve(solution, fitn, feature, decision, feature_count):
         best_fitn = fitn
-        max_tries = feature_count
+        multiplier = 7.0 * (1.0 - abs(len(np.where(solution == True)[0]) - (0.5 * feature_count)) / (0.5 * feature_count))
+        max_tries = feature_count * multiplier
         tries = 0
         sol_stack = np.stack([np.copy(solution)], axis = 0)
 
@@ -135,6 +137,6 @@ def beta_hill_climb(feature, decision, max_itr = 100):
         plt_fitness[itr] = best_fitn
         itr += 1
 
-    #print len(np.where(best_sol == True)[0]), best_fitn
+    print len(np.where(best_sol == True)[0]), best_fitn
     return [ feature[:, best_sol], plt_fitness]
 
