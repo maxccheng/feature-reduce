@@ -35,16 +35,17 @@ def plot_graph(xdata, ydata, fname, title, xlabel, ylabel):
     plt.close(fig)
 
 dsets_path = "./datasets/"
-dset_ext = ".dat"
+dset_ext = "lung.dat"
 for i, f in enumerate(sorted(os.listdir(dsets_path))):
     if f.endswith(dset_ext): 
-        ds = np.loadtxt(dsets_path + f)
-        ds = ds.astype(int)
-        # split into feature and decision with rows as instances
-        X = ds[:, :-1] 
-        y = ds[:, -1].reshape(-1, 1)
+        ds = [line.rstrip('\n').split(' ') for line in open(dsets_path + f)]
+        ds = [map(int, line) for line in ds]
+        # split into feature X and decision y for each instances
+        X = [item[:-1] for item in ds]
+        y = [item[-1] for item in ds]
 
-        X_all_count = X.shape[1]
+        X_all_count = len(X[0])
+
         fselect_rep = 20
         fselect_metric = np.empty(fselect_rep, dtype='int64')
         for m in xrange(fselect_rep):
@@ -54,7 +55,7 @@ for i, f in enumerate(sorted(os.listdir(dsets_path))):
             #fselect_result = ts.tabu_search(X, y)   
             #fselect_result = sa.simulated_annealing(X, y)   
             X_subset = fselect_result[0]  
-            fselect_metric[m] = X_subset.shape[1]
+            fselect_metric[m] = len(X_subset[0])
             search_progress = fselect_result[1]
             fname = f + "_" + str(m) + '.png'
             #plot_graph(np.arange(search_progress.size-1), search_progress[1:], fname, 'Search progress for ' + f + ' attempt #' + str(m+1), 'Generation', 'Fitness') 
@@ -87,7 +88,7 @@ for i, f in enumerate(sorted(os.listdir(dsets_path))):
         print pre_mean, pre_min, pre_max, pre_stddev
         
         # print scores
-        print "%02d %-15s dims=%02d trainset=%5s/%5s    feature_distribution =" % (i, f, X_all_count, X_train.shape[0], X.shape[0])
+        print "%02d %-15s dims=%02d trainset=%5s/%5s    feature_distribution =" % (i, f, X_all_count, len(X_train), len(X))
         feat_bincount = np.column_stack((np.arange(len(feat_bincount)), feat_bincount))
         print feat_bincount[np.where(feat_bincount[:,1] > 0)[0]]
 
