@@ -105,7 +105,7 @@ def beta_hill_climb(feature, decision, max_itr = 100):
 
         return sol_chosen
         
-    tmp_sol = np.random.choice([False, True], size=feature.shape[1], p=[1./5, 4./5])
+    tmp_sol = np.random.choice([False, True], size=feature.shape[1], p=[2.5/5, 2.5/5])
     # tmp_sol = np.random.randint(2, size=feature.shape[1]).astype(bool)
     best_sol = tmp_sol
     best_fitn = 0.0
@@ -121,10 +121,14 @@ def beta_hill_climb(feature, decision, max_itr = 100):
             if rnd.random() < 0.0005:
                 tmp_sol[i] = not tmp_sol[i]
 
-        # repair solution if selected feature count is zero
+        # repair solution if selected feature count is zero or full
         if True not in tmp_sol:
             pos = rnd.randint(0, len(tmp_sol) - 1)
             tmp_sol[pos] = True
+
+        if False not in tmp_sol:
+            pos = rnd.randint(0, len(tmp_sol) - 1)
+            tmp_sol[pos] = False
 
         tmp_fitn = fitness(feature[:, tmp_sol], decision, feature.shape[1]) 
         eval_count += 1
