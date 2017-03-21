@@ -53,8 +53,6 @@ def beta_hill_climb(feature, decision, max_itr = 100):
                 count = count + matched_idx[0].size 
         
         result = float(count) / decision.size 
-        if result == 1.00:
-            result = 1.05
         return result
 
     def fitness(chosen, decision, total_feature):
@@ -70,14 +68,12 @@ def beta_hill_climb(feature, decision, max_itr = 100):
             # swap selected features
             if True in solution and False in solution:
                 # swap a normalized random amount of feature pairs
-                cnt = int(abs(round(np.random.normal(0, 0.5, 1)[0]))) + 1
-                for k in xrange(cnt):
-                    pos_a = rnd.choice(np.where(solution == True)[0])        
-                    pos_b = rnd.choice(np.where(solution == False)[0])        
-                    solution[pos_a] = not solution[pos_a]
-                    solution[pos_b] = not solution[pos_b]
+                #cnt = int(abs(round(np.random.normal(0, 0.5, 1)[0]))) + 1
+                pos_a = rnd.choice(np.where(solution == True)[0])        
+                pos_b = rnd.choice(np.where(solution == False)[0])        
+                solution[pos_a] = not solution[pos_a]
+                solution[pos_b] = not solution[pos_b]
         else:
-            # add or remove feature
             pos = rnd.randint(0, len(solution) - 1)        
             solution[pos] = not solution[pos]
 
@@ -86,8 +82,8 @@ def beta_hill_climb(feature, decision, max_itr = 100):
     # Improve solution and return randomly one of the best neighbors if they have same fitness
     def improve(solution, fitn, feature, decision, feature_count):
         best_fitn = fitn
-        multiplier = 7.0 * (1.0 - abs(len(np.where(solution == True)[0]) - (0.5 * feature_count)) / (0.5 * feature_count))
-        max_tries = feature_count * multiplier
+        multiplier = 5.0 * (1.0 - abs(len(np.where(solution == True)[0]) - (0.5 * feature_count)) / (0.5 * feature_count))
+        max_tries = feature_count * (multiplier + 1.0)
         tries = 0
         sol_stack = np.stack([np.copy(solution)], axis = 0)
 
@@ -105,7 +101,7 @@ def beta_hill_climb(feature, decision, max_itr = 100):
 
         return sol_chosen
         
-    tmp_sol = np.random.choice([False, True], size=feature.shape[1], p=[2.5/5, 2.5/5])
+    tmp_sol = np.random.choice([False, True], size=feature.shape[1], p=[2./10, 8./10])
     # tmp_sol = np.random.randint(2, size=feature.shape[1]).astype(bool)
     best_sol = tmp_sol
     best_fitn = 0.0
@@ -118,21 +114,20 @@ def beta_hill_climb(feature, decision, max_itr = 100):
 
         # mutation operator
         for i in xrange(len(tmp_sol)):
-            if rnd.random() < 0.0005:
+            if rnd.random() < 0.01:
                 tmp_sol[i] = not tmp_sol[i]
 
         # repair solution if selected feature count is zero or full
         if True not in tmp_sol:
             pos = rnd.randint(0, len(tmp_sol) - 1)
             tmp_sol[pos] = True
-
         if False not in tmp_sol:
             pos = rnd.randint(0, len(tmp_sol) - 1)
             tmp_sol[pos] = False
 
         tmp_fitn = fitness(feature[:, tmp_sol], decision, feature.shape[1]) 
         eval_count += 1
-        #print itr, len(np.where(tmp_sol == True)[0]), tmp_fitn, len(np.where(best_sol == True)[0]), best_fitn
+        print itr, len(np.where(tmp_sol == True)[0]), tmp_fitn, len(np.where(best_sol == True)[0]), best_fitn
 
         if tmp_fitn >= best_fitn:            
             best_sol = tmp_sol
@@ -141,6 +136,6 @@ def beta_hill_climb(feature, decision, max_itr = 100):
         plt_fitness[itr] = best_fitn
         itr += 1
 
-    print len(np.where(best_sol == True)[0]), best_fitn
+    print len(np.where(best_sol == True)[0]), best_fitn, np.where(best_sol == True)[0]
     return [ feature[:, best_sol], plt_fitness]
 
