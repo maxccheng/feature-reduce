@@ -53,38 +53,54 @@ def beta_hill_climb(feature, decision, max_itr = 100):
                 count = count + matched_idx[0].size 
         
         result = float(count) / decision.size 
-        if result >= 1.00:
-            result = 1.05
+        
         return result
 
     def fitness(chosen, decision, total_feature):
+        result = deg_of_dep(chosen, decision, total_feature)
+        perfect_deg = 0.0
+        if result == 1.0:
+            perfect_deg = 1.0
+
         return deg_of_dep(chosen, decision, total_feature) * 75.0 + \
-               float(total_feature - chosen.shape[1]) / total_feature * 25.0
+               float(total_feature - chosen.shape[1]) / total_feature * 20.0 + \
+               perfect_deg * 5.0
 
     # Generate neighborhood solution
-    # Change feature combinations 90% of the time, amount of changed features is normal randomized 
+    # Change feature combinations 90% of the time, amount of changed features is number of bits / 2
     # Add or remove features happens 10% of the time
     # Modify 'solution' parameter in place
     def neighborhood_sol(solution):
         if rnd.random() < 0.90:
-            # swap selected features
-            if True in solution and False in solution:
-                # swap a normalized random amount of feature pairs
-                #cnt = int(abs(round(np.random.normal(0, 0.5, 1)[0]))) + 1
-                pos_a = rnd.choice(np.where(solution == True)[0])        
-                pos_b = rnd.choice(np.where(solution == False)[0])        
-                solution[pos_a] = not solution[pos_a]
-                solution[pos_b] = not solution[pos_b]
+            if False in solution:
+                for i in xrange(len(solution) / 2):
+                    pos_a = rnd.choice(np.where(solution == True)[0])        
+                    pos_b = rnd.choice(np.where(solution == False)[0])        
+                    solution[pos_a] = not solution[pos_a]
+                    solution[pos_b] = not solution[pos_b]
         else:
-            pos = rnd.randint(0, len(solution) - 1)        
-            solution[pos] = not solution[pos]
+            # balance add/remove feature chances to 50% addition and 50% removal
+            rem_min = min(len(np.where(solution == True)[0]) - 1, 3)
+            add_rem = rnd.randint(-rem_min, 2)
+            if add_rem >= 0:
+                add_rem += 1 # after this becomes -3,-2,-1,1,2,3 if >3 features chosen
+
+            for i in xrange(abs(add_rem)):
+                if add_rem > 0:
+                    if False in solution:
+                        pos = rnd.choice(np.where(solution == False)[0])        
+                        solution[pos] = True
+                else:
+                    if True in solution:
+                        pos = rnd.choice(np.where(solution == True)[0])        
+                        solution[pos] = False
 
         return solution
 
     # Improve solution and return randomly one of the best neighbors if they have same fitness
     def improve(solution, fitn, feature, decision, feature_count):
         best_fitn = fitn
-        multiplier = 5.0 * (1.0 - abs(len(np.where(solution == True)[0]) - (0.5 * feature_count)) / (0.5 * feature_count))
+        multiplier = 5.0 * (1.0 - abs(len(np.where(solution)[0]) - (0.5 * feature_count)) / (0.5 * feature_count))
         max_tries = feature_count * (multiplier + 1.0)
         tries = 0
         sol_stack = np.stack([np.copy(solution)], axis = 0)
@@ -101,43 +117,54 @@ def beta_hill_climb(feature, decision, max_itr = 100):
 
         sol_chosen = sol_stack[rnd.randint(0, sol_stack.shape[0] - 1), :] 
 
-        return sol_chosen
+        return sol_chosen, max_tries
         
-    tmp_sol = np.random.choice([False, True], size=feature.shape[1], p=[2./10, 8./10])
-    # tmp_sol = np.random.randint(2, size=feature.shape[1]).astype(bool)
+    tmp_sol = np.random.choice([False, True], size=feature.shape[1], p=[1./10, 9./10])
+    # repair solution if selected feature count is zero
+    if True not in tmp_sol:
+        pos = rnd.randint(0, len(tmp_sol) - 1)
+        tmp_sol[pos] = True
     best_sol = tmp_sol
-    best_fitn = 0.0
-    eval_count = 0
+    best_fitn = fitness(feature[:, tmp_sol], decision, feature.shape[1]) 
+    eval_count = 1
     itr = 0
     plt_fitness = np.zeros(max_itr)
     while itr < max_itr:
-        # improve the current solution in existing neighborhood
-        tmp_sol = improve(best_sol, best_fitn, feature, decision, feature.shape[1])
-
+        tmp_sol = np.copy(best_sol)
         # mutation operator
         for i in xrange(len(tmp_sol)):
-            if rnd.random() < 0.0005:
+            if rnd.random() < 0.01: 
                 tmp_sol[i] = not tmp_sol[i]
 
-        # repair solution if selected feature count is zero or full
+        # repair solution if selected feature count is zero
         if True not in tmp_sol:
             pos = rnd.randint(0, len(tmp_sol) - 1)
             tmp_sol[pos] = True
-        if False not in tmp_sol:
-            pos = rnd.randint(0, len(tmp_sol) - 1)
-            tmp_sol[pos] = False
+
+        # improve the current solution in existing neighborhood
+        tmp_sol, improve_eval = improve(best_sol, best_fitn, feature, decision, feature.shape[1])
 
         tmp_fitn = fitness(feature[:, tmp_sol], decision, feature.shape[1]) 
-        eval_count += 1
-        #print itr, len(np.where(tmp_sol == True)[0]), tmp_fitn, len(np.where(best_sol == True)[0]), best_fitn
+        eval_count += improve_eval + 1
 
-        if tmp_fitn >= best_fitn:            
+        print   str(itr).rjust(3), \
+                str(len(np.where(tmp_sol)[0])).rjust(3), \
+                str(format(tmp_fitn,'.4f')).rjust(8), \
+                str(len(np.where(best_sol)[0])).rjust(3), \
+                str(format(best_fitn,'.4f')).rjust(8), \
+                str(int(eval_count)).rjust(6)
+
+        if tmp_fitn >= best_fitn: 
             best_sol = tmp_sol
             best_fitn = tmp_fitn
-    
+
         plt_fitness[itr] = best_fitn
         itr += 1
 
-    print len(np.where(best_sol == True)[0]), best_fitn, np.where(best_sol == True)[0]
+    print   str(len(np.where(best_sol)[0])).rjust(2), \
+            str(format(best_fitn,'.4f')).rjust(8), \
+            str(int(eval_count)).rjust(6), \
+            np.where(best_sol == True)[0]
+
     return [ feature[:, best_sol], plt_fitness]
 

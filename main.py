@@ -1,4 +1,4 @@
-"""Feature selection on 11 UCI datasets to minimize feature count and maximize scores"""
+"""Feature selection on 13 UCI datasets to minimize feature count and maximize scores"""
 print(__doc__)
 
 # suppress warnings e.g. divide by 0 in precision_recall_fscore_support()
