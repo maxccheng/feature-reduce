@@ -100,7 +100,7 @@ def beta_hill_climb(feature, decision, max_itr = 100):
     # Improve solution and return randomly one of the best neighbors if they have same fitness
     def improve(solution, fitn, feature, decision, feature_count):
         best_fitn = fitn
-        multiplier = 5.0 * (1.0 - abs(len(np.where(solution)[0]) - (0.5 * feature_count)) / (0.5 * feature_count))
+        multiplier = 3.0 * (1.0 - abs(len(np.where(solution)[0]) - (0.5 * feature_count)) / (0.5 * feature_count))
         max_tries = feature_count * (multiplier + 1.0)
         tries = 0
         sol_stack = np.stack([np.copy(solution)], axis = 0)
@@ -119,7 +119,7 @@ def beta_hill_climb(feature, decision, max_itr = 100):
 
         return sol_chosen, max_tries
         
-    tmp_sol = np.random.choice([False, True], size=feature.shape[1], p=[1./10, 9./10])
+    tmp_sol = np.random.choice([False, True], size=feature.shape[1], p=[5./10, 5./10])
     # repair solution if selected feature count is zero
     if True not in tmp_sol:
         pos = rnd.randint(0, len(tmp_sol) - 1)
@@ -133,7 +133,7 @@ def beta_hill_climb(feature, decision, max_itr = 100):
         tmp_sol = np.copy(best_sol)
         # mutation operator
         for i in xrange(len(tmp_sol)):
-            if rnd.random() < 0.01: 
+            if rnd.random() < 0.1: 
                 tmp_sol[i] = not tmp_sol[i]
 
         # repair solution if selected feature count is zero
